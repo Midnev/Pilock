@@ -1,4 +1,1 @@
-*.iml
-**/credentials.h
-**/.idea/*.xml
-**/build
+arduino/Pilock/credentials.h
