@@ -1,1 +1,1 @@
-#define KEY value
+#define KEY vttt
