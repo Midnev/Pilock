@@ -86,7 +86,7 @@ int confirmPwd(int pwd[]){
 //================================ states as functions
 void doStateIdle(){
   //check for kepad, nfc ...
-
+  goToSleep();//goto sleep when needed
   //nfc
   while(1){
           bool success;
@@ -138,7 +138,7 @@ void doStateIdle(){
             Serial.println("Didn't find anything!");
           }
           delay(1000);
- 
+
   }
   
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:background="@android:color/black"
+    tools:context=".InitActivity">
+
+    <EditText
+        android:id="@+id/edit_ssid"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginStart="92dp"
+        android:layout_marginTop="91dp"
+        android:background="@android:color/background_light"
+        android:ems="10"
+        android:hint="wifi name"
+        android:inputType="textPersonName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/edit_pwd"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginStart="92dp"
+        android:layout_marginTop="28dp"
+        android:background="@android:color/background_light"
+        android:ems="10"
+        android:hint="wifi password"
+        android:inputType="textPassword"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_ssid" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="140dp"
+        android:layout_marginTop="52dp"
+        android:background="@drawable/round_button"
+        android:onClick="onDataReadyClick"
+        android:text="초기화"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_pwd" />
+</androidx.constraintlayout.widget.ConstraintLayout>
