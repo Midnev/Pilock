@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "267979934735",
+    "firebase_url": "https://first-fire-19aaa.firebaseio.com",
+    "project_id": "first-fire-19aaa",
+    "storage_bucket": "first-fire-19aaa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:267979934735:android:107a19150985e3f110277a",
+        "android_client_info": {
+          "package_name": "com.app.pilock"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "267979934735-1fh75jan2c1moouimhk5vd9pc5praak3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.pilock",
+            "certificate_hash": "df776fbaf67a28f44ae8d68094892e6b9a398582"
+          }
+        },
+        {
+          "client_id": "267979934735-bo822cormico0b6edbeh4um56ii8ajhv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAr51IWa-beKNRfcGHG_eeMkFnDbhUcIoM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "267979934735-bo822cormico0b6edbeh4um56ii8ajhv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
