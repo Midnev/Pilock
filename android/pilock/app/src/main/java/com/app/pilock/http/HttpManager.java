@@ -19,30 +19,30 @@ public class HttpManager {
     String postUrl = "data";
     String key = "";
 
+    String line = "";
+
     public String sendHttpRequest() {
-        String line = "";
+
         try {
             AsyncHttpClient client = new AsyncHttpClient();
             client.get( url+getUrl , new AsyncHttpResponseHandler() {
-
                 @Override
                 public void onStart() {
                     // called before request is started
-                    Log.i("HCEDEMO","START ============================");
+                    Log.i("PiLock","START ============================");
                 }
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] response) {
                     // called when response HTTP status is "200 OK"
-                    Log.i("HCEDEMO",new String(response));
-
-
+                    Log.i("PiLock",new String(response));
+                    line = new String(response);
                 }
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
                     // called when response HTTP status is "4XX" (eg. 401, 403, 404)
-                    Log.i("HCEDEMO","Fail: "+statusCode);
+                    Log.i("PiLock","Fail: "+statusCode);
                 }
 
                 @Override
@@ -51,27 +51,9 @@ public class HttpManager {
                 }
             });
 
-
-
-
-            /*URL url = new URL();
-            line = url.getHost();
-            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-            httpCon.setRequestMethod("GET");
-
-            InputStream iStream = httpCon.getInputStream();
-            InputStreamReader isReader = new InputStreamReader(iStream);
-            BufferedReader bfReader = new BufferedReader(isReader);
-             line = bfReader.readLine();
-
-            httpCon.disconnect();*/
-
-
         }catch (Exception e){
             Log.i("HCE",e.getMessage());
         }
-
-
 
         return line;
     }

@@ -36,9 +36,9 @@ public class NFCActivity extends AppCompatActivity {//implements IsoDepTransceiv
         //txt.setText(intent.getStringExtra("data"));
 
         //
-        HttpManager mg = new HttpManager();
+        /*HttpManager mg = new HttpManager();
         String t = mg.sendHttpRequest();
-        //txt.setText(t);
+        //txt.setText(t);*/
 
     }
 

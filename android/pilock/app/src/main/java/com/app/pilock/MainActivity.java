@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
 
-import com.app.pilock.http.HttpManager;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -43,10 +42,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         pwdView = findViewById(R.id.pwd);
         buttonCreate();//set buttons
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-
+/*
         HttpManager mg = new HttpManager();
         String t = mg.sendHttpRequest();
-        mg.postHttpRequest("send this");
+        mg.postHttpRequest("send this");*/
 
     }
 
