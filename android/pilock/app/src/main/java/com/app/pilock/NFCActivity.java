@@ -30,15 +30,15 @@ public class NFCActivity extends AppCompatActivity {//implements IsoDepTransceiv
 
         apduIntent = new Intent(this, PiLockHostApduService.class);
         apduIntent.putExtra("header",intent.getStringExtra("header"));//header for types
-        apduIntent.putExtra("data",intent.getStringExtra("data"));//need to change sending data
+        String data = intent.getStringExtra("data");
+        if ((!data.equals(""))||data!=null){
+            apduIntent.putExtra("data",intent.getStringExtra("data"));//need to change sending data
+        }else {
+            apduIntent.putExtra("data",intent.getStringExtra("ssid"));//need to change sending data
+            apduIntent.putExtra("data",intent.getStringExtra("sspwd"));//need to change sending data
+        }
 
         txt = findViewById(R.id.txtNfcState);
-        //txt.setText(intent.getStringExtra("data"));
-
-        //
-        /*HttpManager mg = new HttpManager();
-        String t = mg.sendHttpRequest();
-        //txt.setText(t);*/
 
     }
 

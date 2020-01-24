@@ -5,6 +5,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -15,6 +16,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
 
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -42,11 +48,27 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         pwdView = findViewById(R.id.pwd);
         buttonCreate();//set buttons
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-/*
-        HttpManager mg = new HttpManager();
-        String t = mg.sendHttpRequest();
-        mg.postHttpRequest("send this");*/
+        getFireBaseToken();
 
+    }
+
+    private void getFireBaseToken(){
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("pilockERR", "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        // Log and toast
+                        Log.d("pilockERR", token+"");
+                    }
+                });
     }
 
     @Override
