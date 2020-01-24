@@ -61,7 +61,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(0, notificationBuilder.build());
     }
 
-    @Override
+    /*@Override
     public void onNewToken(String token) {
         Log.d(TAG, "Refreshed token: " + token);
 
@@ -70,5 +70,5 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Instance ID token to your app server.
         //sendRegistrationToServer(token);
 
-    }
+    }*/
 }

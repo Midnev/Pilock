@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         pwdView = findViewById(R.id.pwd);
         buttonCreate();//set buttons
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        getFireBaseToken();
+        //getFireBaseToken();
 
     }
 
