@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 
 @Component
-@MapperScan(basePackages = {"capstone"})
+@MapperScan(basePackages = {"com.pilock.repository"})
 public class DBConfig {
 
     @Bean

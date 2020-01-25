@@ -5,11 +5,15 @@ public class DataVo {
     private String createdDate;
     private String deviceId;
 
-    public DataVo(String message, String createdDate,String id) {
-        this.message = message;
-        this.createdDate = createdDate;
-        this.deviceId = id;
 
+    public DataVo(String message, String deviceId) {
+        this.message = message;
+        this.deviceId = deviceId;
+    }
+
+    public String toMessage(){
+
+        return deviceId + message + createdDate;
     }
 
     public String getDeviceId() {

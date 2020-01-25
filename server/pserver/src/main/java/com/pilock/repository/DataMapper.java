@@ -14,10 +14,16 @@ import java.util.ArrayList;
 @Mapper
 public interface DataMapper {
 
-    @Insert("insert into datas(deviceId,message,createdDate) values(#{vo.deviceId},#{vo.message},#{vo.createdDate})")
+    @Insert("insert into datas(deviceId,message) values(#{vo.deviceId},#{vo.message},#{vo.createdDate})")
     void insertData(@Param("vo") DataVo vo);
 
     @Select("select * from datas")
     ArrayList<DataVo> selectDatas();
+
+    @Select("select * from datas where id = #{id}")
+    ArrayList<DataVo> selectDatasById(@Param("id") String id);
+
+    @Insert("insert into users(deviceId,keyId) values(#{deviceId},#{keyId})")
+    void insertUser(@Param("deviceId") String deviceId, @Param("keyId") String keyId);
 
 }

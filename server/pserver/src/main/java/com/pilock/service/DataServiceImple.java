@@ -21,6 +21,16 @@ public class DataServiceImple implements DataService {
         return list;
     }
 
+    @Override
+    public ArrayList<DataVo> selectDatasByDeviceId(String id) {
+        return repository.selectDatasById(id);
+    }
+
+    @Override
+    public ArrayList<String> selectMsgByDeviceId(String id) {
+        ArrayList<DataVo> res = repository.selectDatasById(id);
+        return null;
+    }
 
     public void insertData(DataVo vo) {
         repository.insertData(vo);
