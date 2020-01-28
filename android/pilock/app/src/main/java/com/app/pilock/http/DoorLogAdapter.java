@@ -20,6 +20,9 @@ public class DoorLogAdapter  extends BaseAdapter {
         this.list = list;
     }
 
+    public void setList(ArrayList<String> list) {
+        this.list = list;
+    }
 
     @Override
     public int getCount() {

@@ -7,7 +7,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.app.pilock.http.HttpManager;
 import com.app.pilock.nfc.PiLockHostApduService;
 
 
@@ -31,12 +30,12 @@ public class NFCActivity extends AppCompatActivity {//implements IsoDepTransceiv
         apduIntent = new Intent(this, PiLockHostApduService.class);
         apduIntent.putExtra("header",intent.getStringExtra("header"));//header for types
         String data = intent.getStringExtra("data");
-        if ((!data.equals(""))||data!=null){
-            apduIntent.putExtra("data",intent.getStringExtra("data"));//need to change sending data
-        }else {
-            apduIntent.putExtra("data",intent.getStringExtra("ssid"));//need to change sending data
-            apduIntent.putExtra("data",intent.getStringExtra("sspwd"));//need to change sending data
-        }
+        if (data == null){
+            apduIntent.putExtra("ssid",intent.getStringExtra("ssid"));//need to change sending data
+            apduIntent.putExtra("sspwd",intent.getStringExtra("sspwd"));//need to change sending data
+        }else if ( !data.equals("") ){
+            apduIntent.putExtra("data",data);//need to change sending data
+        }else {}
 
         txt = findViewById(R.id.txtNfcState);
 

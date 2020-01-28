@@ -9,6 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="TextView"
+        android:textColor="#FDFFFFFF"
         android:textSize="24sp" />
 
 </LinearLayout>

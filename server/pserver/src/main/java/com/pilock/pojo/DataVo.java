@@ -1,10 +1,25 @@
 package com.pilock.pojo;
 
+import java.util.Date;
+
 public class DataVo {
+    private int dataId;
     private String message;
     private String createdDate;
     private String deviceId;
 
+    public DataVo(int dataId, String deviceId, String message, String createdDate) {
+        this.dataId = dataId;
+        this.message = message;
+        this.createdDate = createdDate;
+        this.deviceId = deviceId;
+    }
+    public DataVo(int dataId, String deviceId,String message, Date date) {
+        this.dataId = dataId;
+        this.message = message;
+        this.createdDate = date.toString();
+        this.deviceId = deviceId;
+    }
 
     public DataVo(String message, String deviceId) {
         this.message = message;
@@ -12,8 +27,9 @@ public class DataVo {
     }
 
     public String toMessage(){
-
-        return deviceId + message + createdDate;
+        String res = deviceId +" "+ message + " "+createdDate;
+        System.out.println("to msg: "+res);
+        return res;
     }
 
     public String getDeviceId() {

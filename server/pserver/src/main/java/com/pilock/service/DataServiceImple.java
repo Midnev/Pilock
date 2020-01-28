@@ -21,12 +21,24 @@ public class DataServiceImple implements DataService {
         return list;
     }
 
-    @Override
+    public String getStringData(){
+        StringBuffer sb = new StringBuffer();
+        ArrayList<DataVo> list = repository.selectDatas();
+        for (DataVo vo : list){
+
+            sb.append( vo.toMessage());
+            sb.append(",");//to csv;
+        }
+
+        return sb.toString();
+    }
+
+
     public ArrayList<DataVo> selectDatasByDeviceId(String id) {
         return repository.selectDatasById(id);
     }
 
-    @Override
+
     public ArrayList<String> selectMsgByDeviceId(String id) {
         ArrayList<DataVo> res = repository.selectDatasById(id);
         return null;
@@ -35,5 +47,15 @@ public class DataServiceImple implements DataService {
     public void insertData(DataVo vo) {
         repository.insertData(vo);
 
+    }
+
+
+    public void insertUser(String deviceId, String key) {
+        repository.insertUser(deviceId, key);
+    }
+
+
+    public ArrayList<String> getDevideIds(String key) {
+        return repository.getDevices(key);
     }
 }

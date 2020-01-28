@@ -9,4 +9,7 @@ public interface DataService {
     ArrayList<DataVo> selectDatasByDeviceId(String id);
     ArrayList<String> selectMsgByDeviceId(String id);
     void insertData(DataVo vo);
+    void insertUser(String deviceId,String key);
+    ArrayList<String> getDevideIds(String key);
+    String getStringData();
 }

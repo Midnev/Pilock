@@ -7,10 +7,66 @@
 PN532_SPI pn532spi(SPI, 10);
 PN532 nfc(pn532spi);
 
-int communicateNfc(){
+#define HEADER_FING 1
+#define HEADER_PWD 2
+#define HEADER_INIT 3
+
+int nfcMessageOrder = 0;
+int nfcHeader = 0;//0 is null for header or hardware btn
+uint8_t nfcData[4][32];
+
+void readNFC(){
+    uint8_t newNfcData[4][32];//reset each time
+    nfcHeader = 0;// init each nfc set
+    nfcMessageOrder = 0
   
-return 0;
+  
+         bool success;
+        
+          uint8_t responseLength = 32;
+        
+         //===================Waiting for an ISO14443A card=================
+         // set shield to inListPassiveTarget
+          success = nfc.inListPassiveTarget();
+          if (success){//Found something!
+            uint8_t selectApdu[] = {0x00,0xA4,0x04,0x00,0x07,    /* CLA *//* INS *//* P1  *//* P2  *//* Length of AID  */                                 
+                                    0xF0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,  /* AID defined on Android App0xF0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, */
+                                    0x00 };/* Le  */
+        
+            uint8_t response[32];
+            success = nfc.inDataExchange(selectApdu, sizeof(selectApdu), response, &responseLength);
+            if (success){
+              nfc.PrintHexChar(response, responseLength);//responseLength
+        
+              do {
+                uint8_t apdu[] = "start";//return data to arduino
+                uint8_t back[32]; // return data from android
+                uint8_t length = 32; // return length
+                success = nfc.inDataExchange(apdu, sizeof(apdu), back, &length);
+                
+                if (success){                
+                  nfc.PrintHexChar(back, length);  
+                  for(int i = 0;i<32;i++){ // insert into 
+                     newNfcData[nfcMessageOrder][i] = back[i];//save msg
+                  }
+                  if(nfcMessageOrder<4)//limit message index to avoid over flow
+                     nfcMessageOrder++;//next message;
+                }else{}//connection broken?
+              }while (success);
+              if(success){
+                nfcData = newNfcData;//move to refresh
+              }
+            }
+            else {}//failed selecting AID
+          }else{}//did not find anything
+
 }
+
+void identifyHeaderType(){
+   //string compare to check header
+    nfcHeader= 1;
+}
+
 
 //================================ power save
 const int wakeUpPin = 3;
@@ -57,12 +113,12 @@ return 0;//1 if success
 }
 
 int sendREST(){
-
+ 
  return 0;//1 if success
 }
 //================================ door controll
 int openDoor(){
-
+    //relay activate;
   return 0;
 }
 int closeDoor(){
@@ -75,84 +131,64 @@ int checkDoor(){
 }
 
 //================================ keypad controll
-
+int savedPwd[32];
 int readBtn(){
-  
+   //reading 7 line btns
 }
 int confirmPwd(int pwd[]){
- 
+  //password compare alg
 }
 
 //================================ states as functions
+
+
 void doStateIdle(){
   //check for kepad, nfc ...
-  goToSleep();//goto sleep when needed
-  //nfc
-  while(1){
-          bool success;
-        
-          uint8_t responseLength = 32;
-        
-          Serial.println("Waiting for an ISO14443A card");
-          // set shield to inListPassiveTarget
-          success = nfc.inListPassiveTarget();
-          if (success){
-            Serial.println("Found something!");
-            uint8_t selectApdu[] = {0x00,                                     /* CLA */
-                                    0xA4,                                     /* INS */
-                                    0x04,                                     /* P1  */
-                                    0x00,                                     /* P2  */
-                                    0x07,                                     /* Length of AID  */
-                                    0xF0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, /* AID defined on Android App0xF0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, */
-                                    0x00 /* Le  */};
-        
-            uint8_t response[32];
-            success = nfc.inDataExchange(selectApdu, sizeof(selectApdu), response, &responseLength);
-            if (success){
-        
-              Serial.print("responseLength: ");
-              Serial.println(responseLength);
-        
-              nfc.PrintHexChar(response, responseLength);
-        
-              do {
-                uint8_t apdu[] = "Hello from Arduino";
-                uint8_t back[32];
-                uint8_t length = 32;
-        
-                success = nfc.inDataExchange(apdu, sizeof(apdu), back, &length);
-        
-                if (success){
-                  Serial.print("responseLength: ");
-                  Serial.println(length);
-                  nfc.PrintHexChar(back, length);
-                }else{
-                  Serial.println("Broken connection?");
-                }
-              } while (success);
-            }
-            else {
-              Serial.println("Failed sending SELECT AID");
-            }
-          }else{
-            Serial.println("Didn't find anything!");
-          }
-          delay(1000);
 
+
+  //wait for interrupt???
+  while(1){
+    goToSleep();//goto sleep when needed
+  
+    readNFC();
+
+    //identify header
+  // do header job
+    switch(nfcHeader){
+      case HEADER_FING:
+          //
+        break;
+      case HEADER_PWD:
+        //
+        break;
+      case HEADER_INIT:
+         // need all data
+        break;
+      default:
+  
+        //do hardware pdn here no data compare
+      
+      }
+     // other idle state
+    
   }
   
+   
+  
+  
 }
+
 void doStateNumIncome(){
   //when keyapd , check password
 }
 void doStateOpenIdle(){
   //check doorstate for closed
 }
-void doStateReset(){
-  //
-}
-void doStateOption1(){
+void doStateReset(){//init here?
   
+}
+void doStateOption1(){//init??
+   //nfc here too
 }
 void doStateOption2(){
   
@@ -167,13 +203,6 @@ void setup() {
     Serial.print("Didn't find PN53x board");
     while (1); // halt
   }
-  // Got ok data, print it out!
-  Serial.print("Found chip PN5");
-  Serial.println((versiondata >> 24) & 0xFF, HEX);
-  Serial.print("Firmware ver. ");
-  Serial.print((versiondata >> 16) & 0xFF, DEC);
-  Serial.print('.');
-  Serial.println((versiondata >> 8) & 0xFF, DEC);
 
   nfc.SAMConfig();
 }

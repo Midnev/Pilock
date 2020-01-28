@@ -13,6 +13,12 @@ public class DoorController {
     @Qualifier("dataservice1")
     DataService service;
 
+    @GetMapping("/")
+    public String home(){
+        return "home";
+    }
+
+
     @PostMapping("/{id}")
     public int setData(@RequestParam("msg") String msg,@PathVariable("id")String id){
         DataVo vo = new DataVo(msg,id);

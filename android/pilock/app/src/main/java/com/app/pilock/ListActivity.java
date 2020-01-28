@@ -22,24 +22,19 @@ public class ListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+        list = new ArrayList<>();
+        adapter = new DoorLogAdapter(this,list);
 
-        HttpManager httpManager = new HttpManager();
-        stringToArr(httpManager.sendHttpRequest());
+        HttpManager httpManager = new HttpManager(adapter);
+        httpManager.sendHttpRequest();
 
+        lv=findViewById(R.id.dlog_list);
+        lv.setAdapter(adapter);
 
-        lv.findViewById(R.id.dlog_list);
-        lv.setAdapter(adapter = new DoorLogAdapter(this,list));
-
-        //adapter.notifyDataSetChanged();
-    }
-
-    private void stringToArr(String str){
-        list = new ArrayList();
-        String[] strArr = str.split(",");
-        int listSize=strArr.length;
-        list.addAll(Arrays.asList(strArr));
 
     }
+
+
 
 
 }

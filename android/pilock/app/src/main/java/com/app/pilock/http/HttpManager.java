@@ -6,18 +6,32 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import cz.msebera.android.httpclient.Header;
 
 public class HttpManager {
 
-    public HttpManager() {
+    private DoorLogAdapter adapter;
 
+    public HttpManager(DoorLogAdapter adapter) {
+        this.adapter = adapter;
     }
 
-    String url = "http://192.168.0.7:8085/";
-    String getUrl = "test";
+    private ArrayList<String> stringToArr(String str){
+        ArrayList<String> list = new ArrayList();
+        String[] strArr = str.split(" ");
+
+        list.addAll(Arrays.asList(strArr));
+
+        return list;
+    }
+
+    String url = "https://us-central1-pilock.cloudfunctions.net/function-1";
+    String getUrl = "/";
     String postUrl = "data";
-    String key = "";
+    String key = "?key=AIzaSyAO7cBkXzn4ZF_6TO9CbuhOQwAPFH4yDqE";
 
     String line = "";
 
@@ -25,36 +39,35 @@ public class HttpManager {
 
         try {
             AsyncHttpClient client = new AsyncHttpClient();
-            client.get( url+getUrl , new AsyncHttpResponseHandler() {
+           //CustomAsyncHttpHandler ahandler = new CustomAsyncHttpHandler();
+            //client.get( url+getUrl , ahandler);
+            //line = ahandler.getResult();
+            client.get(url + getUrl, new AsyncHttpResponseHandler() {
                 @Override
                 public void onStart() {
                     // called before request is started
                     Log.i("PiLock","START ============================");
                 }
-
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-                    // called when response HTTP status is "200 OK"
                     Log.i("PiLock",new String(response));
                     line = new String(response);
+                    adapter.setList(stringToArr(line));
+                    adapter.notifyDataSetChanged();
+
                 }
 
                 @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
-                    // called when response HTTP status is "4XX" (eg. 401, 403, 404)
-                    Log.i("PiLock","Fail: "+statusCode);
-                }
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
 
-                @Override
-                public void onRetry(int retryNo) {
-                    // called when request is retried
                 }
             });
+
 
         }catch (Exception e){
             Log.i("HCE",e.getMessage());
         }
-
+        Log.i("PiLock","result"+line);
         return line;
     }
 
@@ -64,7 +77,7 @@ public class HttpManager {
         params.put("state", data);
 
 
-        client.post(url + postUrl, params, new AsyncHttpResponseHandler() {
+        client.post(url + postUrl+key, params, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Log.i("HCEDEMO",new String(responseBody));

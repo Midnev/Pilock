@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     public void cancelOnClick(View v){
         clearData();
     }
+
     public void confirmOnclick(View v){
         header = "pswd";
         openNfcActivity();
@@ -119,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     public void fingerOnCLick(View v){
         runFingerprint();
     }
+
     private void clearData(){
         pwdStr = "";
         try {
@@ -129,7 +131,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         data = "";
     }
 
-    //---------------------------nfc activity controll
+
+    //----------------------------------------------------------------
+    //nfc activity controll
     private void openNfcActivity(){
         if(nfcAdapter != null) {
             if (running){
@@ -145,12 +149,19 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             Toast.makeText(this, "NFC not available on this device",Toast.LENGTH_SHORT).show();
         }
     }
-
-    public void initDoorLock(View v){
+    //initialize activity
+    public void openInitDoorLock(View v){
         Intent intent = new Intent(getApplicationContext(),InitActivity.class);
 
         startActivity(intent);
     }
+    //list activity
+    public void openList(View v){
+        Intent intent = new Intent(getApplicationContext(),ListActivity.class);
+
+        startActivity(intent);
+    }
+    //----------------------------------------------------------------
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

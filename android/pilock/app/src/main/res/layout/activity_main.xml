@@ -239,6 +239,7 @@
                 android:layout_marginRight="30dp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
+                android:onClick="openInitDoorLock"
                 android:text="init"
                 android:textColor="#FFFFFF" />
 
@@ -250,6 +251,7 @@
                 android:layout_marginRight="30dp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
+                android:onClick="openList"
                 android:text="List"
                 android:textColor="@android:color/background_light" />
         </LinearLayout>

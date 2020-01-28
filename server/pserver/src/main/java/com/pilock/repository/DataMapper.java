@@ -14,16 +14,19 @@ import java.util.ArrayList;
 @Mapper
 public interface DataMapper {
 
-    @Insert("insert into datas(deviceId,message) values(#{vo.deviceId},#{vo.message},#{vo.createdDate})")
+    @Insert("insert into datas(deviceId,message) values(#{vo.deviceId},#{vo.message})")
     void insertData(@Param("vo") DataVo vo);
 
-    @Select("select * from datas")
+    @Select("select dataId, deviceId, message, DATE_FORMAT(createdDate, '%Y-%m-%d %T')as createdDate from datas")
     ArrayList<DataVo> selectDatas();
 
-    @Select("select * from datas where id = #{id}")
+    @Select("select dataId, deviceId, message, DATE_FORMAT(createdDate, '%Y-%m-%d %T')as createdDate from datas where deviceId = #{id}")
     ArrayList<DataVo> selectDatasById(@Param("id") String id);
 
     @Insert("insert into users(deviceId,keyId) values(#{deviceId},#{keyId})")
     void insertUser(@Param("deviceId") String deviceId, @Param("keyId") String keyId);
+
+    @Select("select deviceId from users where keyId = #{key}")
+    ArrayList<String> getDevices(@Param("key") String key);
 
 }
