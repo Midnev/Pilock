@@ -16,6 +16,9 @@ int machineState = 0;
 void setState(int state){
   machineState = state;
 }
+int checkState(int state){
+    return machineState == state;
+}
 //================================ door controll
 int doorSignal(){
     //port high
@@ -47,11 +50,7 @@ void setWifiData(String wifi, String password){
   WIFI_PASSWORD = password;
 }
 //server might need to be static
-/*void setServerData(String addr, String path){
-   SERVER_ADDR = addr;
-   SERVER_POSTURL = path;
-}
-*/
+
 
 int connectWifi(){
 
@@ -83,8 +82,8 @@ void initNfcData(){
 }*/
 
 void readNFC(){
-    char newNfcData[4][32];//reset each time
-    nfcHeader = 0;// init each nfc set
+    //char newNfcData[4][32];//reset each time
+    //nfcHeader = 0;// init each nfc,,, no need to wirte each time 
     nfcMessageOrder = 0;
 
     bool success;
@@ -111,40 +110,26 @@ void readNFC(){
           if (success){                
             //nfc.PrintHexChar(back, length);
             for(int r=0;r<32;r++){
-              newNfcData[nfcMessageOrder][r] = (char)back[r];//save msg out side of loop
+              nfcData[nfcMessageOrder][r] = (char)back[r];//save msg out side of loop
             }
             if(nfcMessageOrder<4)//limit message index to avoid over flow
                nfcMessageOrder++;//next message;
                
-            if(nfcMessageOrder==0){
-                if(strcmp("init", newNfcData[0] ) ==0){//string compare to check header
+            if(nfcMessageOrder==0){//identify header
+                if(strcmp("init", nfcData[0] ) ==0){//string compare to check header
                 nfcHeader=HEADER_INIT;
-              }else if(strcmp("fing", newNfcData[0]) ==0 ){
+              }else if(strcmp("fing", nfcData[0]) ==0 ){
                 nfcHeader=HEADER_FING;
               }else{} 
             }
                
           }else{}//connection broken?
         }while (success);
-        if(nfcHeader==HEADER_INIT){//========================================header comfirmed
-          nfcHeader=0;
-          setWifiData(newNfcData[1],newNfcData[2]);
-          
-        }else if (nfcHeader == HEADER_FING){
-          nfcHeader=0;
-          if( strcmp(androidId,newNfcData[1]) ){
-            //open
-          }
-        }
+        
       }
       else {}//failed selecting AID
     }else{}//did not find anything
 
-}
-
-void identifyHeaderType(){
-
-    nfcHeader= 1;
 }
 
 
@@ -152,16 +137,12 @@ void identifyHeaderType(){
 const int wakeUpPin = 3;
 void wakeUp(){}
 
+/*
 void goToSleep(){
   attachInterrupt(0, wakeUp, LOW);
   LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF); 
   detachInterrupt(0); 
-}
-
-
-
-
-
+}*/
 
 //================================ keypad controll
 int savedPwd[32];
@@ -175,35 +156,32 @@ int confirmPwd(int pwd[]){
 //================================ states as functions
 
 
-void doStateIdle(){
-  //check for kepad, nfc ...
-
-
+void doStateIdle(){ //check for kepad, nfc ...
+ 
   //wait for interrupt???
-  while(1){
-    goToSleep();//goto sleep when needed
-  
+  while(checkState(STATE_IDLE)){
+    //goToSleep();//goto sleep when needed
+    //if(resetbtn input == true) setState(STATE_RESET);
+    
     readNFC();
-
-    //identify header
   // do header job
     switch(nfcHeader){
       case HEADER_FING:
-          //
+          if( strcmp(androidId,nfcData[1]) ){
+            Serial.print("recived Data: ");
+            Serial.println(nfcData[1]);
+            setState(STATE_OPENIDLE);
+          }
         break;
       case HEADER_PWD:
-        //
-        break;
-      case HEADER_INIT:
-         // need all data
+        //non
         break;
       //default:
-  
         //do hardware pdn here no data compare
-      
       }
-     // other idle state
-    
+    if(nfcHeader!=0){
+      nfcHeader=0;
+    }
   }
   
    
@@ -216,8 +194,26 @@ void doStateNumIncome(){
 }
 void doStateOpenIdle(){
   //check doorstate for closed
+  while(checkState(STATE_OPENIDLE)){//sensor ==true
+     Serial.println("door opened");
+     setState(STATE_IDLE);
+     Serial.println("door closed");
+  
+  }
 }
 void doStateReset(){//init here?
+  while(checkState(STATE_RESET) ){
+    readNFC();
+    if( nfcHeader == HEADER_INIT){
+        setWifiData(nfcData[1],nfcData[2]);
+        setState(STATE_IDLE);
+        
+        Serial.print("ssid  : ");
+        Serial.println(WIFI_NAME);
+        Serial.print("sspwd : ");
+        Serial.println(WIFI_PASSWORD);
+    }
+  }
   
 }
 void doStateOption1(){//init??
@@ -241,6 +237,8 @@ void setup() {
 }
 
 void loop() {
+  Serial.print("Machine state : ");
+  Serial.println(machineState);
   switch(machineState){
     case STATE_IDLE:
         doStateIdle();
@@ -263,5 +261,6 @@ void loop() {
     //default: 
       //state Error need beeping
       //then turn to idle
+      //setState(STATE_IDLE);
   }
 }
