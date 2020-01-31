@@ -15,6 +15,7 @@ public class DoorController {
 
     @GetMapping("/")
     public String home(){
+        
         return "home";
     }
 
