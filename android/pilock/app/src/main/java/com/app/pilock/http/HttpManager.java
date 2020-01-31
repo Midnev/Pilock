@@ -31,7 +31,7 @@ public class HttpManager {
     String url = "https://us-central1-pilock.cloudfunctions.net/function-1";
     String getUrl = "/";
     String postUrl = "data";
-    String key = "?key=AIzaSyAO7cBkXzn4ZF_6TO9CbuhOQwAPFH4yDqE";
+    String key = "";
 
     String line = "";
 

@@ -12,11 +12,14 @@
 #define STATE_RESET 3
 #define STATE_OPTION1 4
 #define STATE_OPTION2 5
+
 int machineState = 0;
 void setState(int state){
   machineState = state;
 }
 int checkState(int state){
+  Serial.print("machineState: ");
+    Serial.println(machineState);
     return machineState == state;
 }
 //================================ door controll
@@ -73,13 +76,45 @@ PN532 nfc(pn532spi);
 int nfcMessageOrder = 0;
 int nfcHeader = 0;//0 is null for header or hardware btn
 char nfcData[4][32];
-char androidId[32];
-/*
+char androidId[32]="12292c43045aef13";
+
+void setAndroidId(const char *data){
+  for(int i=0;i<32;i++){
+      androidId[i]=data[i];
+  }
+}
+int checkAndroidId(const char *data){
+  for(int i=0;i<32;i++){
+      if(androidId[i]!=data[i])
+        return 0;
+  }
+  return 1;
+}
+
 void initNfcData(){
   for(int c=0;c<4;c++){
-    nfcData[c]="";
+    for(int r=0;r<32;r++)
+      nfcData[c][r]=0;
   }  
-}*/
+}
+
+void seeNfcData(){
+  for(int c=0;c<4;c++){
+    for(int r=0;r<32;r++)
+      Serial.print(nfcData[c][r]);
+      Serial.println("  ");
+  }  
+  Serial.println("");
+}
+
+bool checkHeader(const char *data,const char *data2){
+
+    for(int i=0;i<4;i++){
+      if(data[i]==data2[i]){
+        }else{ return 0; }
+    }
+  return 1;
+}
 
 void readNFC(){
     //char newNfcData[4][32];//reset each time
@@ -97,10 +132,15 @@ void readNFC(){
                               0x00 };/* Le  */
   
       uint8_t response[32];
-      success = nfc.inDataExchange(selectApdu, sizeof(selectApdu), response, &responseLength);
+      success = nfc.inDataExchange(selectApdu, sizeof(selectApdu), response, &responseLength);//header here
       if (success){
         nfc.PrintHexChar(response, responseLength);//responseLength
-  
+            if(checkHeader("init", response )){//string compare to check header
+              nfcHeader=HEADER_INIT;
+          
+            }else if(checkHeader("fing", response )){
+              nfcHeader=HEADER_FING;
+            }else{} 
         do {
           uint8_t apdu[] = "start";//return data to arduino
           uint8_t back[32]; // return data from android
@@ -108,24 +148,21 @@ void readNFC(){
           success = nfc.inDataExchange(apdu, sizeof(apdu), back, &length);
           
           if (success){                
-            //nfc.PrintHexChar(back, length);
-            for(int r=0;r<32;r++){
-              nfcData[nfcMessageOrder][r] = (char)back[r];//save msg out side of loop
+           //nfc.PrintHexChar(back, length);
+            if(nfcMessageOrder<4){//limit message index to avoid over flow
+              
+              for(int r=0;r<length;r++){
+                  if( back[r] > 0x1f){
+                     nfcData[nfcMessageOrder][r] = ((char)back[r]);//save msg out side of loop
+                  }else{
+                   nfcData[nfcMessageOrder][r]= 0x20;
+                   }
+              }
+              nfcMessageOrder++;//next message;
             }
-            if(nfcMessageOrder<4)//limit message index to avoid over flow
-               nfcMessageOrder++;//next message;
-               
-            if(nfcMessageOrder==0){//identify header
-                if(strcmp("init", nfcData[0] ) ==0){//string compare to check header
-                nfcHeader=HEADER_INIT;
-              }else if(strcmp("fing", nfcData[0]) ==0 ){
-                nfcHeader=HEADER_FING;
-              }else{} 
-            }
-               
+            
           }else{}//connection broken?
         }while (success);
-        
       }
       else {}//failed selecting AID
     }else{}//did not find anything
@@ -167,9 +204,9 @@ void doStateIdle(){ //check for kepad, nfc ...
   // do header job
     switch(nfcHeader){
       case HEADER_FING:
-          if( strcmp(androidId,nfcData[1]) ){
+          if( checkAndroidId(nfcData[0]) ){
             Serial.print("recived Data: ");
-            Serial.println(nfcData[1]);
+            Serial.println(nfcData[0]);
             setState(STATE_OPENIDLE);
           }
         break;
@@ -183,10 +220,7 @@ void doStateIdle(){ //check for kepad, nfc ...
       nfcHeader=0;
     }
   }
-  
-   
-  
-  
+
 }
 
 void doStateNumIncome(){
@@ -225,15 +259,19 @@ void doStateOption2(){
 //================================ main setup and loop
 void setup() {
   machineState = STATE_IDLE;
-  pinMode(wakeUpPin, INPUT);  
-
+  //pinMode(wakeUpPin, INPUT);  
+  Serial.begin(9600);
+  nfc.begin();
   uint32_t versiondata = nfc.getFirmwareVersion();
   if (!versiondata){
     Serial.print("Didn't find PN53x board");
     while (1); // halt
-  }
-
+  }else{
+   Serial.println("Found PN53x board"); 
+   }
+  Serial.println("drlk start");
   nfc.SAMConfig();
+  initNfcData();
 }
 
 void loop() {
@@ -258,9 +296,9 @@ void loop() {
     case STATE_OPTION2:
         doStateOption2();
       break;
-    //default: 
-      //state Error need beeping
-      //then turn to idle
-      //setState(STATE_IDLE);
+    default: 
+      setState(STATE_IDLE);
+      break;
   }
+  delay(100);
 }
