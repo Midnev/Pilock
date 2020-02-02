@@ -30,7 +30,7 @@ public class NFCActivity extends AppCompatActivity {//implements IsoDepTransceiv
         apduIntent = new Intent(this, PiLockHostApduService.class);
         apduIntent.putExtra("header",intent.getStringExtra("header"));//header for types
         String data = intent.getStringExtra("data");
-        if (data == null){
+        if (data == null||data.equals("")){
             apduIntent.putExtra("ssid",intent.getStringExtra("ssid"));//need to change sending data
             apduIntent.putExtra("sspwd",intent.getStringExtra("sspwd"));//need to change sending data
         }else if ( !data.equals("") ){
