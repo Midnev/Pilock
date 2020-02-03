@@ -19,11 +19,11 @@ public class DoorController {
 
     @GetMapping("/")
     public String home(){
-        try {
+/*        try {
             System.out.println(s2.sendAutoDoorNotification("title 1","body 2","test"));
         }catch (Exception e){
             System.out.println(e.getMessage());
-        }
+        }*/
 
 
         return "home";
@@ -34,7 +34,7 @@ public class DoorController {
                        @PathVariable("id")String id){
         try {
             if (!msg.equals("")) {
-                System.out.println(s2.sendAutoDoorNotification("", "", ""));
+               // System.out.println(s2.sendAutoDoorNotification("", "", ""));
                 DataVo vo = new DataVo(msg, id);
                 service.insertData(vo);
             } else
