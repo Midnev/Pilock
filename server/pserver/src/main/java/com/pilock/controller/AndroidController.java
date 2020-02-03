@@ -18,7 +18,9 @@ public class AndroidController {
     DataService service;
 
     @GetMapping("/")
-    public ArrayList<DataVo> getList(@RequestParam("key") String key){
+    public ArrayList<DataVo> getList(@RequestParam(name = "key",defaultValue = "",required = false) String key){
+        if (key.equals(""))
+            return null;
         String deviceId = service.getDevideIds(key).get(0);
         ArrayList<DataVo> list = service.selectDatasByDeviceId(deviceId);
         return list;
@@ -33,7 +35,9 @@ public class AndroidController {
     }
 
     @PostMapping("/init")
-    public void addSetting(@RequestParam("id") String id,@RequestParam("key") String key){
+    public void addSetting(@RequestParam(name = "id",defaultValue = "",required = false) String id,
+                           @RequestParam(name = "key",defaultValue = "",required = false) String key){
+
         //add to database search data
         service.insertUser(id,key);
     }

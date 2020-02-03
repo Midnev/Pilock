@@ -42,7 +42,8 @@
         android:layout_marginTop="52dp"
         android:background="@drawable/round_button"
         android:onClick="onDataReadyClick"
-        android:text="초기화"
+        android:text="등록"
+        android:textColor="#FFFFFF"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edit_pwd" />

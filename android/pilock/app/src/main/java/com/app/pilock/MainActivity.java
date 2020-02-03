@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -49,6 +50,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         buttonCreate();//set buttons
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         //getFireBaseToken();
+
+        FirebaseMessaging.getInstance().subscribeToTopic("test")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                        //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
 
     }
 

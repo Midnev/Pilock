@@ -1,2 +1,3 @@
 arduino/Pilock/credentials.h
 android/pilock/app/google-services.json
+server/pserver/target/classes/pilock-firebase-adminsdk.json

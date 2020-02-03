@@ -1,9 +1,5 @@
 server:
-  port: 8085
-
-firebase:
-  server-key: "AAAA5G6XN3I:APA91bHCp9Y5kv776ZAqWDtvl-XwXfEsQegpVIsSUnyKy0w42TZEC2GJtqDCc9HXztU4rT1zvXP6HD53QuDKBAQZo7M2TdzHdwjPJP9MFDzeP6gZ6P_DJG4aWTOxENBBxsLaDe9guowG"
-  sender-id: "981107947378"
+  port: 8080
 
 spring:
   datasource:
