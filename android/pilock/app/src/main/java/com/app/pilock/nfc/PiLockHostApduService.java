@@ -3,6 +3,7 @@ package com.app.pilock.nfc;
 import android.content.Intent;
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
+import android.util.Log;
 
 public class PiLockHostApduService extends HostApduService {
 
@@ -29,8 +30,10 @@ public class PiLockHostApduService extends HostApduService {
 			header = intent.getStringExtra("header");// type fing, pswd, init
 			data = intent.getStringExtra("data");
 			if (header.equals("init")){//when in initialize mode fetch extra data to send in csv
+
 				ssid = intent.getStringExtra("ssid");
 				sspwd = intent.getStringExtra("sspwd");
+				Log.i("pilock","data: "+ ssid+sspwd);
 			}
 		}catch (Exception e){}//logs if needed
 
@@ -60,7 +63,6 @@ public class PiLockHostApduService extends HostApduService {
 				data = "";
 			}
 		}else {}
-
 		return holder.getBytes();
 	}
 
