@@ -134,7 +134,7 @@ void readNFC(){
       uint8_t response[32];
       success = nfc.inDataExchange(selectApdu, sizeof(selectApdu), response, &responseLength);//header here
       if (success){
-        nfc.PrintHexChar(response, responseLength);//responseLength
+        nfc.PrintHexChar(response, responseLength);//responseLength//--------------------------------------Log
             if(checkHeader("init", response )){//string compare to check header
               nfcHeader=HEADER_INIT;
           
@@ -148,7 +148,7 @@ void readNFC(){
           success = nfc.inDataExchange(apdu, sizeof(apdu), back, &length);
           
           if (success){                
-           //nfc.PrintHexChar(back, length);
+           nfc.PrintHexChar(back, length);//--------------------------------------Log
             if(nfcMessageOrder<4){//limit message index to avoid over flow
               
               for(int r=0;r<length;r++){
@@ -256,12 +256,23 @@ void doStateOption1(){//init??
 void doStateOption2(){
   
 }
+//--------------
+/*void blink() {
+  Serial.println("blink!"); 
+}*/
 //================================ main setup and loop
+
 void setup() {
-  machineState = STATE_IDLE;
-  //pinMode(wakeUpPin, INPUT);  
+  machineState = STATE_IDLE;//STATE_RESET;
+ 
+  
   Serial.begin(9600);
   nfc.begin();
+
+ //pinMode(2, INPUT_PULLUP);  
+  //attachInterrupt(digitalPinToInterrupt(2), blink, CHANGE);
+
+  
   uint32_t versiondata = nfc.getFirmwareVersion();
   if (!versiondata){
     Serial.print("Didn't find PN53x board");
@@ -269,13 +280,17 @@ void setup() {
   }else{
    Serial.println("Found PN53x board"); 
    }
-  Serial.println("drlk start");
+   
   nfc.SAMConfig();
   initNfcData();
+  Serial.println("drlk start");
+   
 }
 
 void loop() {
-  Serial.print("Machine state : ");
+ 
+
+  Serial.print("Machine state : ");//--------------------------------------Log
   Serial.println(machineState);
   switch(machineState){
     case STATE_IDLE:
@@ -301,4 +316,5 @@ void loop() {
       break;
   }
   delay(100);
+  
 }
