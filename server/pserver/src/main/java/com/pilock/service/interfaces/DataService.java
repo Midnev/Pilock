@@ -11,5 +11,6 @@ public interface DataService {
     void insertData(DataVo vo);
     void insertUser(String deviceId,String key);
     ArrayList<String> getDevideIds(String key);
+    ArrayList<String> getTopics(String deviceId);
     String getStringData();
 }

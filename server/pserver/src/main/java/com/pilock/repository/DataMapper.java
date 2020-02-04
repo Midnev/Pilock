@@ -29,4 +29,7 @@ public interface DataMapper {
     @Select("select deviceId from users where keyId = #{key}")
     ArrayList<String> getDevices(@Param("key") String key);
 
+    @Select("select keyId from users where deviceId = #{deviceId}")
+    ArrayList<String> getKeys(@Param("deviceId") String deviceId);
+
 }
