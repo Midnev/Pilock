@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         //getFireBaseToken();
 
-        FirebaseMessaging.getInstance().subscribeToTopic("test")
+        FirebaseMessaging.getInstance().subscribeToTopic("and0001")
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
