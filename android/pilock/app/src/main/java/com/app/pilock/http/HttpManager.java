@@ -21,15 +21,15 @@ public class HttpManager {
 
     private ArrayList<String> stringToArr(String str){
         ArrayList<String> list = new ArrayList();
-        String[] strArr = str.split(" ");
+        String[] strArr = str.split(",");
 
         list.addAll(Arrays.asList(strArr));
 
         return list;
     }
 
-    String url = "https://us-central1-pilock.cloudfunctions.net/function-1";
-    String getUrl = "/";
+    String url = "http://35.208.214.3:8085";
+    String getUrl = "/android/csv";
     String postUrl = "data";
     String key = "";
 

@@ -34,8 +34,8 @@ public class ServersideFireBaseService {
 
 
     private static final String ANDROID_NEWS_ICON_RESOURCE = "news_alert_icon";
-    private static final int APNS_NEWS_BADGE_RESOURCE = 42;
-    private static final String WEBPUSH_NEWS_ICON_URL = "https://auto.news.url/alert.png";
+/*    private static final int APNS_NEWS_BADGE_RESOURCE = 42;
+    private static final String WEBPUSH_NEWS_ICON_URL = "https://auto.news.url/alert.png";*/
 
     public String sendAutoDoorNotification(String title, String body,String topic) throws Exception {
         Message message = Message.builder()

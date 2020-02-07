@@ -1,10 +1,11 @@
-com\pilock\config\DBConfig.class
 com\pilock\service\DataServiceImple.class
 com\pilock\service\interfaces\DataService.class
-com\pilock\controller\AndroidController.class
 com\pilock\repository\DataMapper.class
-com\pilock\config\CORSFilterConfig.class
+com\pilock\config\FirebaseConfig.class
 com\pilock\controller\DoorController.class
-com\pilock\pojo\DataVo.class
 com\pilock\application\Application.class
 com\pilock\service\ServersideFireBaseService.class
+com\pilock\config\DBConfig.class
+com\pilock\controller\AndroidController.class
+com\pilock\config\CORSFilterConfig.class
+com\pilock\pojo\DataVo.class

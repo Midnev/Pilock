@@ -52,7 +52,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentTitle(remoteMessage.getNotification().getTitle())
                 .setContentText(remoteMessage.getNotification().getBody())
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("Much longer text that cannot fit one line..."))
+                        .bigText(remoteMessage.getNotification().getBody()))//"Much longer text that cannot fit one line..."
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         //sendNotification(remoteMessage.getNotification().getBody());
 

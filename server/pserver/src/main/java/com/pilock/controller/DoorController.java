@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+
 @RestController
 public class DoorController {
 
@@ -34,7 +36,11 @@ public class DoorController {
                        @PathVariable("id")String id){
         try {
             if (!msg.equals("")) {
-               // System.out.println(s2.sendAutoDoorNotification("", "", ""));
+                ArrayList<String> list = service.getTopics(id);
+                for (String topic : list){
+                    System.out.println(s2.sendAutoDoorNotification("Pilock Alarm", msg, topic));
+                }
+               //
                 DataVo vo = new DataVo(msg, id);
                 service.insertData(vo);
             } else

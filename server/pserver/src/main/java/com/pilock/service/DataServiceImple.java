@@ -29,7 +29,6 @@ public class DataServiceImple implements DataService {
             sb.append( vo.toMessage());
             sb.append(",");//to csv;
         }
-
         return sb.toString();
     }
 
@@ -57,5 +56,9 @@ public class DataServiceImple implements DataService {
 
     public ArrayList<String> getDevideIds(String key) {
         return repository.getDevices(key);
+    }
+
+    public ArrayList<String> getTopics(String deviceId) {
+        return repository.getKeys(deviceId);
     }
 }
