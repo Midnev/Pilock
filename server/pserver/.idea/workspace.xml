@@ -6,10 +6,7 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4c3197de-0636-4fdf-b3d3-362aef7feed6" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../android/pilock/app/src/main/java/com/app/pilock/firebase/MyFirebaseMessagingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../android/pilock/app/src/main/java/com/app/pilock/firebase/MyFirebaseMessagingService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="4c3197de-0636-4fdf-b3d3-362aef7feed6" name="Default Changelist" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -373,12 +370,12 @@
       <workItem from="1580693593607" duration="4590000" />
       <workItem from="1580810886074" duration="4642000" />
       <workItem from="1580821653136" duration="646000" />
-      <workItem from="1581074906995" duration="419000" />
+      <workItem from="1581074906995" duration="982000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="51507000" />
+    <option name="totallyTimeSpent" value="52070000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
