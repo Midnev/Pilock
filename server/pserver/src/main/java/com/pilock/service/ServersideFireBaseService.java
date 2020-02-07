@@ -17,6 +17,7 @@ public class ServersideFireBaseService {
     private String configPath ="src/main/resources/pilock-firebase-adminsdk.json";
 
     public ServersideFireBaseService() {
+
         try {
             FileInputStream serviceAccount =
                     new FileInputStream(configPath);

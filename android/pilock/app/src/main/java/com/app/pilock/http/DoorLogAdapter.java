@@ -16,8 +16,8 @@ public class DoorLogAdapter  extends BaseAdapter {
     private ArrayList<String> list;
 
     public DoorLogAdapter(Context context, ArrayList<String> list) {
-        this.context = context;
-        this.list = list;
+            this.context = context;
+            this.list = list;
     }
 
     public void setList(ArrayList<String> list) {
