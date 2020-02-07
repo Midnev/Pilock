@@ -21,7 +21,6 @@ int checkState(int state){
   Serial.print("machineState: ");
     Serial.println(machineState);
     return machineState == state;
-    
 }
 //================================ door controll
 int doorSignal(){
