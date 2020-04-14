@@ -23,16 +23,25 @@ int checkState(int state){
     return machineState == state;
 }
 //================================ door controll
+#define RELAY 8  
 int doorSignal(){
     //port high
     //port low
   }
 int openDoor(){
-    //relay activate;
+  digitalWrite(RELAY, HIGH);
+  delay(100);
+  Serial.print("open\n");
+  digitalWrite(RELAY, LOW);
+  delay(5000);
   return 0;
 }
 int closeDoor(){
-  
+  digitalWrite(RELAY, HIGH);
+  delay(100);
+  Serial.print("close\n");
+  digitalWrite(RELAY, LOW);
+  delay(5000);
   return 0;
 }
 int checkDoor(){
@@ -268,7 +277,7 @@ void setup() {
   
   Serial.begin(9600);
   nfc.begin();
-
+  pinMode(RELAY, OUTPUT);
  //pinMode(2, INPUT_PULLUP);  
   //attachInterrupt(digitalPinToInterrupt(2), blink, CHANGE);
 
