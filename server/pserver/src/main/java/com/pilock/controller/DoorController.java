@@ -38,14 +38,15 @@ public class DoorController {
                 for (String topic : list){
                     System.out.println(s2.sendAutoDoorNotification("Pilock Alarm", msg, topic));
                 }
+                //
+                DataVo vo = new DataVo(msg, id);
+                service.insertData(vo);
             } else
                 return 0;
         }catch (Exception e){
             System.out.println(e.getMessage());
             return 0;
         }
-        DataVo vo = new DataVo(msg, id);
-        service.insertData(vo);
         return 1;
     }
 /*
