@@ -28,7 +28,6 @@ public class HttpManager {
         return list;
     }
 
-    String url = "http://35.208.214.3:8080";
     String getUrl = "/android/csv";
     String postUrl = "data";
     String key = "";
@@ -58,7 +57,7 @@ public class HttpManager {
                 }
 
                 @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) { }
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
             });
 
 

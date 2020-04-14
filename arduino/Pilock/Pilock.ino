@@ -1,12 +1,10 @@
-#include <string.h>
 #include "LowPower.h"
 #include <SPI.h>
 #include "PN532_SPI.h"
 #include "PN532.h"
 #include "credentials.h"
-#include <SoftwareSerial.h>
-#include "WiFiEsp.h"
 
+#include <string.h>
 //================================ state machine
 #define STATE_IDLE 0
 #define STATE_NUMINCOME 1
@@ -44,66 +42,27 @@ int checkDoor(){
 
 //================================ wifi data
 String DEVICEID = "drlk0001";//const?
-char ssid[] = "AndroidHotspot8D_91_42";            // your network SSID (name)
-char pass[] = "wazxde135";        // your network password
-const char* server = "35.208.214.3";
-const String url = "/drlk0001?msg=hello";
+String WIFI_NAME = "";//need to change here
+String WIFI_PASSWORD = "";//need to change here
+String SERVER_ADDR = "http://000.000.000.000:port";
+String SERVER_GETURL = "";//try not to use
+String SERVER_POSTURL = "/";
 
-int wifiStatus = WL_IDLE_STATUS;
-SoftwareSerial WifiSerial(2, 3); // RX, TX
-WiFiEspClient client;
-/*void setWifiData(String wifi, String password){
+void setWifiData(String wifi, String password){
   WIFI_NAME = wifi;
   WIFI_PASSWORD = password;
-}*/
+}
 //server might need to be static
 
-void printWifiStatus(){
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
-  IPAddress ip = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(ip);
-  long rssi = WiFi.RSSI();
-  Serial.print("Signal strength (RSSI):");
-  Serial.print(rssi);
-  Serial.println(" dBm");
 
+int connectWifi(){
+
+return 0;//1 if success
 }
 
-int connectToWifi(){
-  WifiSerial.begin(9600);
-  WiFi.init(&WifiSerial);
-  if (WiFi.status() == WL_NO_SHIELD) {
-    Serial.println("WiFi shield not present");
-    return 0;
-  }
-  while ( wifiStatus != WL_CONNECTED) {
-    Serial.print("Attempting to connect to WPA SSID: ");
-    Serial.println(ssid);
-    wifiStatus = WiFi.begin(ssid, pass);
-  }
-  Serial.println("You're connected to the network");
-  printWifiStatus();
-  if(WiFi.status() == WL_CONNECTED){
-    return 1;
-  }
-  return 0;
-}
-
-void postRequest(const char* server,const String url){
-  
-  if (client.connect(server, 8080)){
-  Serial.println("Connected to server"); 
-  client.print("POST ");
-  client.print(url); 
-  client.print(" HTTP/1.1\r\n"); 
-  client.print("Host: "); 
-  client.print(server); 
-  client.print("\r\n"); 
-  client.print("Connection: close\r\n\r\n");
-  }
-
+int sendREST(){
+ 
+ return 0;//1 if success
 }
 
 //================================ nfc controll
@@ -248,7 +207,6 @@ void doStateIdle(){ //check for kepad, nfc ...
           if( checkAndroidId(nfcData[0]) ){
             Serial.print("recived Data: ");
             Serial.println(nfcData[0]);
-            postRequest(server,url);
             setState(STATE_OPENIDLE);
           }
         break;
@@ -281,10 +239,13 @@ void doStateReset(){//init here?
   while(checkState(STATE_RESET) ){
     readNFC();
     if( nfcHeader == HEADER_INIT){
-        //setWifiData(nfcData[1],nfcData[2]);
+        setWifiData(nfcData[1],nfcData[2]);
         setState(STATE_IDLE);
         
-        
+        Serial.print("ssid  : ");
+        Serial.println(WIFI_NAME);
+        Serial.print("sspwd : ");
+        Serial.println(WIFI_PASSWORD);
     }
   }
   
@@ -319,9 +280,9 @@ void setup() {
   }else{
    Serial.println("Found PN53x board"); 
    }
+   
   nfc.SAMConfig();
   initNfcData();
-  connectToWifi();
   Serial.println("drlk start");
    
 }
