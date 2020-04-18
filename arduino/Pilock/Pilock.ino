@@ -35,16 +35,16 @@ int openDoor(){
   delay(100);
   Serial.print("open\n");
   digitalWrite(RELAY, LOW);
-  delay(5000);
-  return 0;
+  delay(1000);
+  return 1;
 }
 int closeDoor(){
   digitalWrite(RELAY, HIGH);
   delay(100);
   Serial.print("close\n");
   digitalWrite(RELAY, LOW);
-  delay(5000);
-  return 0;
+  delay(1000);
+  return 1;
 }
 int checkDoor(){
   //check sensors?
@@ -56,7 +56,7 @@ String DEVICEID = "drlk0001";//const?
 char ssid[] = "AndroidHotspot8D_91_42";            // your network SSID (name)
 char pass[] = "wazxde135";        // your network password
 const char* server = "35.208.214.3";
-const String url = "/drlk0001?msg=hello";
+const String url = "/drlk0001?msg=Door%20was%20Opened";
 
 int wifiStatus = WL_IDLE_STATUS;
 SoftwareSerial WifiSerial(2, 3); // RX, TX
@@ -140,7 +140,13 @@ int checkAndroidId(const char *data){
   }
   return 1;
 }
-
+int checkEmpty(const char *data){
+  if(data[0]=='f'){
+    return 1;  
+  }
+  else 
+    return 0;
+}
 void initNfcData(){
   for(int c=0;c<4;c++){
     for(int r=0;r<32;r++)
@@ -210,6 +216,7 @@ void readNFC(){
               }
               nfcMessageOrder++;//next message;
             }
+            //=================if(strcmp())
             
           }else{}//connection broken?
         }while (success);
@@ -257,7 +264,7 @@ void doStateIdle(){ //check for kepad, nfc ...
           if( checkAndroidId(nfcData[0]) ){
             Serial.print("recived Data: ");
             Serial.println(nfcData[0]);
-            postRequest(server,url);
+            
             setState(STATE_OPENIDLE);
           }
         break;
@@ -279,11 +286,14 @@ void doStateNumIncome(){
 }
 void doStateOpenIdle(){
   //check doorstate for closed
+  Serial.println("door opened");
+  openDoor();
+  postRequest(server,url);
   while(checkState(STATE_OPENIDLE)){//sensor ==true
-     Serial.println("door opened");
+     delay(5000);
+     closeDoor();
      setState(STATE_IDLE);
      Serial.println("door closed");
-  
   }
 }
 void doStateReset(){//init here?
