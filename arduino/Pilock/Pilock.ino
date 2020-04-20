@@ -239,9 +239,52 @@ void goToSleep(){
 }*/
 
 //================================ keypad controll
+#define SCL_PIN 6
+#define SDO_PIN 7
+
+#define KEY1 1;
+#define KEY2 2;
+#define KEY3 3;
+#define KEY4 5;
+#define KEY5 6;
+#define KEY6 7;
+#define KEY7 9;
+#define KEY8 10;
+#define KEY9 11;
+#define KEY0 14;
+
 int savedPwd[32];
+byte Key;
+
+byte Read_Keypad(void){
+  byte Count;
+  byte Key_State = 0;
+
+  /* Pulse the clock pin 16 times (one for each key of the keypad) 
+     and read the state of the data pin on each pulse */
+  for(Count = 1; Count <= 16; Count++)
+  {
+    digitalWrite(SCL_PIN, LOW); 
+    
+    /* If the data pin is low (active low mode) then store the 
+       current key number */
+    if (!digitalRead(SDO_PIN))
+      Key_State = Count; 
+    
+    digitalWrite(SCL_PIN, HIGH);
+  }  
+  
+  return Key_State; 
+}
+
 int readBtn(){
-   //reading 7 line btns
+   Key = Read_Keypad();
+  if (Key){
+    Serial.println(Key);
+    
+  }
+   
+  delay(100);
 }
 int confirmPwd(int pwd[]){
   //password compare alg
