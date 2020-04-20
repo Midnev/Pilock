@@ -839,7 +839,7 @@ bool PN532::inListPassiveTarget()
         return false;
     }
 
-    int16_t status = HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer), 30000);
+    int16_t status = HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer), 300);
     if (status < 0) {
         return false;
     }

@@ -20,16 +20,21 @@ void setState(int state){
   machineState = state;
 }
 int checkState(int state){
-  Serial.print("machineState: ");
-    Serial.println(machineState);
+ 
     return machineState == state;
 }
 //================================ door controll
 #define RELAY 8  
+#define PHOTO1 5
+#define PHOTO2 4
 int doorSignal(){
     //port high
     //port low
-  }
+}
+int checkDoor(){
+  //check sensors?
+  return 0;
+}
 int openDoor(){
   digitalWrite(RELAY, HIGH);
   delay(100);
@@ -46,10 +51,7 @@ int closeDoor(){
   delay(1000);
   return 1;
 }
-int checkDoor(){
-  //check sensors?
-  return 0;
-}
+
 
 //================================ wifi data
 String DEVICEID = "drlk0001";//const?
@@ -166,8 +168,8 @@ void seeNfcData(){
 bool checkHeader(const char *data,const char *data2){
 
     for(int i=0;i<4;i++){
-      if(data[i]==data2[i]){
-        }else{ return 0; }
+      if(data[i]==data2[i]){}
+      else{ return 0; }
     }
   return 1;
 }
@@ -181,7 +183,9 @@ void readNFC(){
     uint8_t responseLength = 32;
    //===================Waiting for an ISO14443A card=================
    // set shield to inListPassiveTarget
+   //Serial.println("exechange str");
     success = nfc.inListPassiveTarget();
+    //Serial.println("exechange end");
     if (success){//Found something!
       uint8_t selectApdu[] = {0x00,0xA4,0x04,0x00,0x07,    /* CLA *//* INS *//* P1  *//* P2  *//* Length of AID  */                                 
                               0xF0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,  /* AID defined on Android App0xF0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, */
@@ -227,80 +231,116 @@ void readNFC(){
 }
 
 
-//================================ power save
-const int wakeUpPin = 3;
-void wakeUp(){}
-
-/*
-void goToSleep(){
-  attachInterrupt(0, wakeUp, LOW);
-  LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF); 
-  detachInterrupt(0); 
-}*/
-
-//================================ keypad controll
+//================================ keypad & pwd controll
 #define SCL_PIN 6
 #define SDO_PIN 7
 
-#define KEY1 1;
-#define KEY2 2;
-#define KEY3 3;
-#define KEY4 5;
-#define KEY5 6;
-#define KEY6 7;
-#define KEY7 9;
-#define KEY8 10;
-#define KEY9 11;
-#define KEY0 14;
-
-int savedPwd[32];
-byte Key;
-
-byte Read_Keypad(void){
+int prevKey =0;
+int readKeypad(void){
   byte Count;
   byte Key_State = 0;
-
-  /* Pulse the clock pin 16 times (one for each key of the keypad) 
-     and read the state of the data pin on each pulse */
-  for(Count = 1; Count <= 16; Count++)
-  {
+  for(Count = 1; Count <= 16; Count++){
     digitalWrite(SCL_PIN, LOW); 
-    
-    /* If the data pin is low (active low mode) then store the 
-       current key number */
     if (!digitalRead(SDO_PIN))
       Key_State = Count; 
-    
     digitalWrite(SCL_PIN, HIGH);
-  }  
+  }
   
+  if (Key_State>12){
+    return 0;
+  }
+  //if(prevKey != Key_State)
+    //prevKey = Key_State;
+  //delay(100);
+  //Serial.println(Key_State);
   return Key_State; 
 }
+int readKeyIdle(){
+  int key = readKeypad();
+  prevKey = key;
+  return key;
+}
 
-int readBtn(){
-   Key = Read_Keypad();
-  if (Key){
-    Serial.println(Key);
-    
+int getKey(){
+  int key = readKeypad();
+  if(prevKey == key){
+    return 0;
   }
-   
-  delay(100);
+  prevKey = key;
+  Serial.print("getKey : ");
+  Serial.println(key);
+  return key;
 }
-int confirmPwd(int pwd[]){
-  //password compare alg
+
+
+int pwdIndex =0;
+int savedPwd[16] {1,2,3,4,
+                  0,0,0,0,
+                  0,0,0,0,
+                  0,0,0,0};
+int checkPwd[16];
+
+void setPwd(const int *data){
+  for(int i =0; i<16;i++){
+    savedPwd[i] = 0;
+    savedPwd[i] = data[i];
+  }
 }
+void resetCPwd(){
+  pwdIndex =0;
+  for(int i =0; i<16;i++){
+    checkPwd[i] = 0;
+  }
+}
+int confirmPwdNFC(const int *data){
+  for(int i =0; i<16;i++){
+    checkPwd[i] = data[i];
+  }
+  confirmPwd();
+}
+int confirmPwd(){
+  Serial.println("Checking");
+  for(int i=0;i<16;i++){
+      if(savedPwd[i] == checkPwd[i]){
+      }else{ 
+        Serial.print("failed : ");
+        Serial.println(i);
+        resetCPwd();
+        return 0; 
+      }
+  }
+  resetCPwd();
+  return 1;
+}
+int insertPwd(){
+  int key = getKey();
+  
+  if(key){
+    
+    if(key == 11 && confirmPwd()){//check
+      return 2;
+    }else if(key == 12){//cancel
+      return 0;
+    }else{
+      checkPwd[pwdIndex] = key;
+      pwdIndex++;
+    }
+  }
+  return 1;
+}
+
 
 //================================ states as functions
 
 
 void doStateIdle(){ //check for kepad, nfc ...
- 
   //wait for interrupt???
   while(checkState(STATE_IDLE)){
     //goToSleep();//goto sleep when needed
-    //if(resetbtn input == true) setState(STATE_RESET);
-    
     readNFC();
+     if(readKeyIdle()){
+        setState(STATE_NUMINCOME);
+      }
   // do header job
     switch(nfcHeader){
       case HEADER_FING:
@@ -312,7 +352,9 @@ void doStateIdle(){ //check for kepad, nfc ...
           }
         break;
       case HEADER_PWD:
-        //non
+        Serial.println(nfcData[0]);
+        Serial.println(nfcData[1]);
+        Serial.println(nfcData[2]);
         break;
       //default:
         //do hardware pdn here no data compare
@@ -322,9 +364,30 @@ void doStateIdle(){ //check for kepad, nfc ...
     }
   }
 
+ 
+
 }
 
 void doStateNumIncome(){
+  while(checkState(STATE_NUMINCOME)){
+
+    int res = insertPwd();
+     if(res==2)
+      setState(STATE_OPENIDLE);
+     else if(res){}
+     else
+       setState(STATE_IDLE);
+     
+    /*switch(insertPwd()){
+      case 0:
+        setState(STATE_IDLE);
+        break;
+      case 2:
+        setState(STATE_OPENIDLE);
+        break;  
+    }*/
+  }
+  //readKeypad
   //when keyapd , check password
 }
 void doStateOpenIdle(){
@@ -333,10 +396,12 @@ void doStateOpenIdle(){
   openDoor();
   postRequest(server,url);
   while(checkState(STATE_OPENIDLE)){//sensor ==true
-     delay(5000);
-     closeDoor();
-     setState(STATE_IDLE);
-     Serial.println("door closed");
+     
+     if(readKeypad()){
+      closeDoor();
+       setState(STATE_IDLE);
+       Serial.println("door closed");
+     }
   }
 }
 void doStateReset(){//init here?
@@ -345,8 +410,7 @@ void doStateReset(){//init here?
     if( nfcHeader == HEADER_INIT){
         //setWifiData(nfcData[1],nfcData[2]);
         setState(STATE_IDLE);
-        
-        
+
     }
   }
   
@@ -370,6 +434,8 @@ void setup() {
   Serial.begin(9600);
   nfc.begin();
   pinMode(RELAY, OUTPUT);
+  pinMode(SCL_PIN, OUTPUT);  
+  pinMode(SDO_PIN, INPUT); 
  //pinMode(2, INPUT_PULLUP);  
   //attachInterrupt(digitalPinToInterrupt(2), blink, CHANGE);
 
@@ -384,6 +450,7 @@ void setup() {
   nfc.SAMConfig();
   initNfcData();
   connectToWifi();
+  resetCPwd();
   Serial.println("drlk start");
    
 }
@@ -406,12 +473,12 @@ void loop() {
     case STATE_RESET:
         doStateReset();
       break;
-    case STATE_OPTION1:
+    /*case STATE_OPTION1:
         doStateOption1();
       break;
     case STATE_OPTION2:
         doStateOption2();
-      break;
+      break;*/
     default: 
       setState(STATE_IDLE);
       break;
