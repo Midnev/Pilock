@@ -3,13 +3,10 @@
     <string name="title_activity_nfc">NFCActivity</string>
 
     <string name="empty"> </string>
-
     <string name="cancel">취소</string>
-
     <string name="confirm">확인</string>
-
-
     <string name="init">입력</string>
+    <string name="plz">문에 가져다 대세요</string>
 
 
     <string name="aiddescription">aiddescription</string>

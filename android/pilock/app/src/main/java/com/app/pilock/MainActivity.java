@@ -151,6 +151,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 Intent intent = new Intent(getApplicationContext(),NFCActivity.class);
                 intent.putExtra("header",header);
                 intent.putExtra("data",data);
+                if (header.equals("pswd"))
+                    intent.putExtra("data2",Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
                 //nfcAdapter.disableForegroundDispatch(this);
                 clearData();
                 startActivityForResult(intent,0);

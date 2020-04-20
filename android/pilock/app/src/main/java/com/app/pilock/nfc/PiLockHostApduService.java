@@ -9,6 +9,7 @@ public class PiLockHostApduService extends HostApduService {
 
 	//initialize data to prevent data leak
 	private String data = "f";
+	private String data2 = "";
 	private String header = "n";
 
 	private String ssid = "";
@@ -29,6 +30,8 @@ public class PiLockHostApduService extends HostApduService {
 		try {
 			header = intent.getStringExtra("header");// type fing, pswd, init
 			data = intent.getStringExtra("data");
+			if (header.equals("pswd"))
+				data2 = intent.getStringExtra("data2");
 			if (header.equals("init")){//when in initialize mode fetch extra data to send in csv
 
 				ssid = intent.getStringExtra("ssid");
@@ -56,13 +59,23 @@ public class PiLockHostApduService extends HostApduService {
 				holder = ssid;
 				ssid = "";
 			}
-		}else if (header.equals("fing")||header.equals("pswd")){//authentication type header
+		}else if (header.equals("fing")){//authentication type header
 			if (!data.equals("")){
 				holder = data;
 				header = "f";
 				data = "";
 			}
-		}else {}
+		}else if(header.equals("pswd")){
+			if (data.equals("")){
+				holder = data2;
+				header = "f";
+				data2 = "";
+			}else{
+				holder = data;
+				data = "";
+			}
+
+		}
 		return holder.getBytes();
 	}
 
