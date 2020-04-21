@@ -35,6 +35,10 @@ public class NFCActivity extends AppCompatActivity {//implements IsoDepTransceiv
             apduIntent.putExtra("sspwd",intent.getStringExtra("sspwd"));//need to change sending data
         }else if ( !data.equals("") ){
             apduIntent.putExtra("data",data);//need to change sending data
+            String data2 = intent.getStringExtra("data2");
+            if(data2 !=null){
+                apduIntent.putExtra("data2",data2);
+            }
         }else {}
 
         txt = findViewById(R.id.txtNfcState);
