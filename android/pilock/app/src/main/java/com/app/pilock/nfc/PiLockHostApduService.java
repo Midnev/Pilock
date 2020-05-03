@@ -30,9 +30,11 @@ public class PiLockHostApduService extends HostApduService {
 		try {
 			header = intent.getStringExtra("header");// type fing, pswd, init
 			data = intent.getStringExtra("data");
-			if (header.equals("pswd"))
+			if (header.equals("pswd")) {
+
 				data2 = intent.getStringExtra("data2");
-			if (header.equals("init")){//when in initialize mode fetch extra data to send in csv
+				Log.i("main",data2);
+			}else if (header.equals("init")){//when in initialize mode fetch extra data to send in csv
 
 				ssid = intent.getStringExtra("ssid");
 				sspwd = intent.getStringExtra("sspwd");
@@ -76,6 +78,7 @@ public class PiLockHostApduService extends HostApduService {
 			}
 
 		}
+		Log.i("apdu",holder);
 		return holder.getBytes();
 	}
 
