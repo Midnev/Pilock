@@ -7,6 +7,15 @@
 #include <SoftwareSerial.h>
 #include "WiFiEsp.h"
 
+
+#define PHOTO2 2
+#define PHOTO1 3
+#define WIFI_RX 5
+#define WIFI_TX 4
+#define SCL_PIN 6//6
+#define SDO_PIN 7//7
+#define RELAY 8  
+
 //================================ state machine
 #define STATE_IDLE 0
 #define STATE_NUMINCOME 1
@@ -22,8 +31,6 @@ void setState(int state){
 int checkState(int state){
     return machineState == state;
 }
-
-
 //================================ wifi data
 String DEVICEID = "drlk0001";//const?
 char ssid[] = "AndroidHotspot8D_91_42";            // your network SSID (name)
@@ -34,7 +41,7 @@ const String close_url = "/drlk0001?msg=Door%20was%20Closed";
 const String error_url = "/drlk0001?msg=Door%20was%20Not%20Closed";
 
 int wifiStatus = WL_IDLE_STATUS;
-SoftwareSerial WifiSerial(4, 5); // RX, TX
+SoftwareSerial WifiSerial(WIFI_RX, WIFI_TX); // RX, TX
 WiFiEspClient client;
 /*void setWifiData(String wifi, String password){
   WIFI_NAME = wifi;
@@ -89,16 +96,17 @@ void postRequest(const String urlType){
   }
 
 }
+
+
+
 //================================ door controll
-#define RELAY 8  
-#define PHOTO1 3
-#define PHOTO2 2
+
 int doorSignal(){
     //port high
     //port low
 }
 int checkDoor(){
-      delay(2000);
+      delay(1000);
       int val = digitalRead(3); // 
       if (val == OUTPUT){ // 초기 센서 값 OFF 으로 설정
         return 1;//Door Locked
@@ -112,9 +120,9 @@ int openDoor(){//need count?
     delay(100);
     Serial.print("open\n");
     digitalWrite(RELAY, LOW);
-    delay(1000);
+    //delay(1000);
     //notify
-    //postRequest(open_url);
+    //
     if(tries>3){
       postRequest(error_url);
       return 0;
@@ -123,6 +131,8 @@ int openDoor(){//need count?
       delay(5000);
     }
   }
+  
+  postRequest(open_url);
   return 1;
 }
 int closeDoor(){
@@ -132,7 +142,7 @@ int closeDoor(){
     delay(100);
     Serial.print("open\n");
     digitalWrite(RELAY, LOW);
-    delay(1000);
+    //delay(1000);
     if(tries>3){
       //notify
       postRequest(error_url);
@@ -143,24 +153,30 @@ int closeDoor(){
     }
   }
   //notify
-  //postRequest(close_url);
+  postRequest(close_url);
+  
   return 1;
 }
 
+//bool manul_close = false;
 static unsigned long last_door_interrupt_time = 0;
 void photoInterr(){
   unsigned long interrupt_time = millis();//debounce
-  if (interrupt_time - last_door_interrupt_time > 200){
+  if (interrupt_time - last_door_interrupt_time > 1000){
         if (checkDoor()){ 
            //Serial.println("READ"); // 감지
-           //delay(10);
-           postRequest(close_url);
+           setState(STATE_IDLE);
         }else{
-          //Serial.println("NON"); // 없음
-          postRequest(open_url);
+          Serial.println("NON"); // 없음
+            //setState(STATE_OPENIDLE);
+            //postRequest(open_url);
+
           } 
+          last_door_interrupt_time = interrupt_time;
+    //delay(2000);
+    Serial.println("Interr End");
   }
-    last_door_interrupt_time = interrupt_time;
+    
 }
 
 //================================ nfc controll
@@ -279,8 +295,7 @@ void readNFC(){
 
 
 //================================ keypad & pwd controll
-#define SCL_PIN 6
-#define SDO_PIN 7
+
 
 int prevKey =0;
 int readKeypad(void){
@@ -487,13 +502,16 @@ void doStateOpenIdle(){
   Serial.println("door opened");
   openDoor();
   //postRequest(server,url);
+  //postRequest(open_url);
   while(checkState(STATE_OPENIDLE)){//sensor ==true
      
-     if(readKeypad()){
-      closeDoor();
+     if(readKeypad()||checkDoor() ){
+      //if( closeDoor())
+        //postRequest(close_url);
        setState(STATE_IDLE);
        Serial.println("door closed");
      }
+     
   }
 }
 void doStateReset(){//init here?
@@ -528,7 +546,7 @@ void setup() {
   pinMode(SCL_PIN, OUTPUT);  
   pinMode(SDO_PIN, INPUT); 
   
-  pinMode(3, INPUT); // 포토인터럽터 입력으로 설정;  
+  pinMode(PHOTO1, INPUT); // 포토인터럽터 입력으로 설정;  
   attachInterrupt(1, photoInterr,FALLING);//pin 3 interrupt
 
   
