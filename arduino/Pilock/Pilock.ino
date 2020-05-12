@@ -10,10 +10,10 @@
 
 #define PHOTO2 2
 #define PHOTO1 3
-#define WIFI_RX 5
-#define WIFI_TX 4
-#define SCL_PIN 6//6
-#define SDO_PIN 7//7
+#define WIFI_TX 6//4
+#define WIFI_RX 7//5
+#define SCL_PIN 4//6
+#define SDO_PIN 5//7
 #define RELAY 8  
 
 //================================ state machine
@@ -47,8 +47,6 @@ WiFiEspClient client;
   WIFI_NAME = wifi;
   WIFI_PASSWORD = password;
 }*/
-//server might need to be static
-
 void printWifiStatus(){
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
@@ -69,11 +67,17 @@ int connectToWifi(){
     Serial.println("WiFi shield not present");
     return 0;
   }
+  int wtry =0;
   while ( wifiStatus != WL_CONNECTED) {
     Serial.print("Attempting to connect to WPA SSID: ");
     Serial.println(ssid);
     wifiStatus = WiFi.begin(ssid, pass);
+    if(wtry >1)
+      break;
+    else
+      wtry++;
   }
+  
   Serial.println("You're connected to the network");
   printWifiStatus();
   if(WiFi.status() == WL_CONNECTED){
@@ -100,11 +104,6 @@ void postRequest(const String urlType){
 
 
 //================================ door controll
-
-int doorSignal(){
-    //port high
-    //port low
-}
 int checkDoor(){
       delay(1000);
       int val = digitalRead(3); // 
@@ -142,19 +141,15 @@ int closeDoor(){
     delay(100);
     Serial.print("open\n");
     digitalWrite(RELAY, LOW);
-    //delay(1000);
     if(tries>3){
-      //notify
       postRequest(error_url);
       return 0;
     }else{
       tries++;
-      delay(5000);
+      delay(3000);
     }
   }
-  //notify
   postRequest(close_url);
-  
   return 1;
 }
 
@@ -167,13 +162,9 @@ void photoInterr(){
            //Serial.println("READ"); // 감지
            setState(STATE_IDLE);
         }else{
-          Serial.println("NON"); // 없음
-            //setState(STATE_OPENIDLE);
-            //postRequest(open_url);
-
+          //Serial.println("NON"); // 없음
           } 
           last_door_interrupt_time = interrupt_time;
-    //delay(2000);
     Serial.println("Interr End");
   }
     
@@ -278,10 +269,12 @@ void readNFC(){
                   if( back[r] > 0x1f){
                      nfcData[nfcMessageOrder][r] = ((char)back[r]);//save msg out side of loop
                   }else{
-                   nfcData[nfcMessageOrder][r]= 0x20;
-                   }
+                    nfcData[nfcMessageOrder][r]= 0x20;
+                  }
               }
               nfcMessageOrder++;//next message;
+            }else if(nfcMessageOrder >=4){
+              break;
             }
             //=================if(strcmp())
             
@@ -322,11 +315,13 @@ int readKeyIdle(){
 
 int getKey(){
   int key = readKeypad();
+  //while( readKeypad() ){//delay(30);
+   //}
   if(prevKey == key){
     return 0;
   }
   prevKey = key;
-  delay(100);
+  
 //Serial.print("getKey : ");
 //Serial.println(key);
   return key;
@@ -388,12 +383,13 @@ int confirmPwdNFC(const char *data){
         break;   
       default:
         temp=0;
+        break;
     }
       if(savedPwd[i] == temp){
       }else{ 
         Serial.print("failed : ");
         Serial.println(temp);
-        Serial.println(i);
+        Serial.println(savedPwd[i]);
         resetCPwd();
         return 0; 
       }
@@ -417,8 +413,8 @@ int confirmPwd(){
 int insertPwd(){
   int key = getKey();
   
-  if(key){
-    
+  if(key>0){
+    Serial.println(key);
     if(key == 11 && confirmPwd()){//check
       return 2;
     }else if(key == 12){//cancel
@@ -444,6 +440,9 @@ void doStateIdle(){ //check for kepad, nfc ...
         setState(STATE_NUMINCOME);
       }
   // do header job
+    if(!checkDoor()){
+      setState(STATE_OPENIDLE);
+    }
     switch(nfcHeader){
       case HEADER_FING:
           if( checkAndroidId(nfcData[0]) ){
@@ -501,15 +500,9 @@ void doStateOpenIdle(){
   //check doorstate for closed
   Serial.println("door opened");
   openDoor();
-  //postRequest(server,url);
-  //postRequest(open_url);
   while(checkState(STATE_OPENIDLE)){//sensor ==true
-     
-     if(readKeypad()||checkDoor() ){
-      //if( closeDoor())
-        //postRequest(close_url);
+     if(checkDoor() || (readKeypad()&&closeDoor()  )){
        setState(STATE_IDLE);
-       Serial.println("door closed");
      }
      
   }
@@ -561,7 +554,6 @@ void setup() {
   initNfcData();
   connectToWifi();
   resetCPwd();
-
   closeDoor();
   Serial.println("drlk start");
    
