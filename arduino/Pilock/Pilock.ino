@@ -10,11 +10,12 @@
 
 #define PHOTO2 2
 #define PHOTO1 3
-#define WIFI_TX 6//4
-#define WIFI_RX 7//5
-#define SCL_PIN 4//6
-#define SDO_PIN 5//7
+#define WIFI_TX_PIN 4//46
+#define WIFI_RX_PIN 5//57
+#define SCL_PIN 6//64
+#define SDO_PIN 7//75
 #define RELAY 8  
+#define RELAY2 9  
 
 //================================ state machine
 #define STATE_IDLE 0
@@ -41,7 +42,7 @@ const String close_url = "/drlk0001?msg=Door%20was%20Closed";
 const String error_url = "/drlk0001?msg=Door%20was%20Not%20Closed";
 
 int wifiStatus = WL_IDLE_STATUS;
-SoftwareSerial WifiSerial(WIFI_RX, WIFI_TX); // RX, TX
+SoftwareSerial WifiSerial(WIFI_RX_PIN, WIFI_TX_PIN); // RX, TX
 WiFiEspClient client;
 /*void setWifiData(String wifi, String password){
   WIFI_NAME = wifi;
@@ -61,7 +62,7 @@ void printWifiStatus(){
 }
 
 int connectToWifi(){
-  WifiSerial.begin(9600);
+  
   WiFi.init(&WifiSerial);
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println("WiFi shield not present");
@@ -87,25 +88,39 @@ int connectToWifi(){
 }
 
 void postRequest(const String urlType){
+
+  digitalWrite(RELAY2, HIGH);
+ // delay(1000);
+  
+  connectToWifi();
+  
   
   if (client.connect(server, 8080)){
-  Serial.println("Connected to server"); 
-  client.print("POST ");
-  client.print(urlType); 
-  client.print(" HTTP/1.1\r\n"); 
-  client.print("Host: "); 
-  client.print(server); 
-  client.print("\r\n"); 
-  client.print("Connection: close\r\n\r\n");
+    
+    Serial.println("Connected to server"); 
+    client.print("POST ");
+    client.print(urlType); 
+    client.print(" HTTP/1.1\r\n"); 
+    client.print("Host: "); 
+    client.print(server); 
+    client.print("\r\n"); 
+    client.print("Connection: close\r\n\r\n");
+    //client.close();
+    client.stop();
   }
 
+  
+  wifiStatus=WL_IDLE_STATUS;
+  WiFi.disconnect();
+  //WifiSerial.end();
+  digitalWrite(RELAY2, LOW);
 }
 
 
 
 //================================ door controll
 int checkDoor(){
-      delay(1000);
+      //delay(500);
       int val = digitalRead(3); // 
       if (val == OUTPUT){ // 초기 센서 값 OFF 으로 설정
         return 1;//Door Locked
@@ -139,7 +154,7 @@ int closeDoor(){
   while(!checkDoor()){
     digitalWrite(RELAY, HIGH);
     delay(100);
-    Serial.print("open\n");
+    Serial.print("close\n");
     digitalWrite(RELAY, LOW);
     if(tries>3){
       postRequest(error_url);
@@ -154,6 +169,7 @@ int closeDoor(){
 }
 
 //bool manul_close = false;
+/*
 static unsigned long last_door_interrupt_time = 0;
 void photoInterr(){
   unsigned long interrupt_time = millis();//debounce
@@ -168,7 +184,7 @@ void photoInterr(){
     Serial.println("Interr End");
   }
     
-}
+}*/
 
 //================================ nfc controll
 PN532_SPI pn532spi(SPI, 10);
@@ -329,7 +345,7 @@ int getKey(){
 
 
 int pwdIndex =0;
-int savedPwd[16] {1,2,3,4,
+int savedPwd[16]= {1,2,3,4,
                   0,0,0,0,
                   0,0,0,0,
                   0,0,0,0};
@@ -386,6 +402,7 @@ int confirmPwdNFC(const char *data){
         break;
     }
       if(savedPwd[i] == temp){
+        Serial.print(temp);
       }else{ 
         Serial.print("failed : ");
         Serial.println(temp);
@@ -394,19 +411,23 @@ int confirmPwdNFC(const char *data){
         return 0; 
       }
   }
+  Serial.println("");
   return 1;
 }
 int confirmPwd(){
   Serial.println("Checking");
   for(int i=0;i<16;i++){
       if(savedPwd[i] == checkPwd[i]){
+        Serial.print(checkPwd[i]);
       }else{ 
         Serial.print("failed : ");
-        Serial.println(i);
+        Serial.print(savedPwd[i]);
+        Serial.println(checkPwd[i]);
         resetCPwd();
         return 0; 
       }
   }
+  Serial.println("");
   resetCPwd();
   return 1;
 }
@@ -501,7 +522,8 @@ void doStateOpenIdle(){
   Serial.println("door opened");
   openDoor();
   while(checkState(STATE_OPENIDLE)){//sensor ==true
-     if(checkDoor() || (readKeypad()&&closeDoor()  )){
+     if(checkDoor() || readKeypad(  )){
+      closeDoor();
        setState(STATE_IDLE);
      }
      
@@ -536,11 +558,12 @@ void setup() {
   Serial.begin(9600);
   nfc.begin();
   pinMode(RELAY, OUTPUT);
+  pinMode(RELAY2, OUTPUT);
   pinMode(SCL_PIN, OUTPUT);  
   pinMode(SDO_PIN, INPUT); 
   
   pinMode(PHOTO1, INPUT); // 포토인터럽터 입력으로 설정;  
-  attachInterrupt(1, photoInterr,FALLING);//pin 3 interrupt
+  //attachInterrupt(1, photoInterr,FALLING);//pin 3 interrupt
 
   
   uint32_t versiondata = nfc.getFirmwareVersion();
@@ -552,11 +575,11 @@ void setup() {
    }
   nfc.SAMConfig();
   initNfcData();
-  connectToWifi();
+  WifiSerial.begin(9600);
   resetCPwd();
-  closeDoor();
+  //closeDoor();
   Serial.println("drlk start");
-   
+  delay(1000);
 }
 
 void loop() {
