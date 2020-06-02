@@ -17,6 +17,48 @@
 #define RELAY 8  
 #define RELAY2 9  
 
+//================================ gotosleep
+static unsigned long last_activation_time = 0;
+void doorsleep(){
+  attachInterrupt(0, wakeInterr, LOW);
+  attachInterrupt(1, photoInterr,FALLING);//pin 3 interrupt
+  unsigned long now_time = millis();
+  if(now_time-last_activation_time>30000){
+    
+    Serial.println("  ");
+    Serial.println("Sleep Start");
+    delay(1000);
+    LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
+  }else{
+    Serial.println("not sleep yet");
+  }
+   detachInterrupt(0);
+   detachInterrupt(1);
+}
+
+void countActivation(){
+    last_activation_time   = millis();
+}
+
+static unsigned long last_door_interrupt_time = 0;
+void wakeInterr(){
+  unsigned long interrupt_time = millis();//debounce
+  if (interrupt_time - last_door_interrupt_time > 1000){
+     last_activation_time   = millis();
+    last_door_interrupt_time = interrupt_time;
+    Serial.println("Interr End");
+  }
+    
+}
+void photoInterr(){
+  unsigned long interrupt_time = millis();//debounce
+  if (interrupt_time - last_door_interrupt_time > 1000){
+     last_door_interrupt_time = interrupt_time;
+    Serial.println("Interr End");
+  }
+    
+}
+
 //================================ state machine
 #define STATE_IDLE 0
 #define STATE_NUMINCOME 1
@@ -28,6 +70,7 @@
 int machineState = 0;
 void setState(int state){
   machineState = state;
+  countActivation();
 }
 int checkState(int state){
     return machineState == state;
@@ -169,22 +212,9 @@ int closeDoor(){
 }
 
 //bool manul_close = false;
-/*
-static unsigned long last_door_interrupt_time = 0;
-void photoInterr(){
-  unsigned long interrupt_time = millis();//debounce
-  if (interrupt_time - last_door_interrupt_time > 1000){
-        if (checkDoor()){ 
-           //Serial.println("READ"); // 감지
-           setState(STATE_IDLE);
-        }else{
-          //Serial.println("NON"); // 없음
-          } 
-          last_door_interrupt_time = interrupt_time;
-    Serial.println("Interr End");
-  }
-    
-}*/
+
+
+
 
 //================================ nfc controll
 PN532_SPI pn532spi(SPI, 10);
@@ -455,7 +485,8 @@ int insertPwd(){
 void doStateIdle(){ //check for kepad, nfc ...
   //wait for interrupt???
   while(checkState(STATE_IDLE)){
-    //goToSleep();//goto sleep when needed
+    doorsleep();
+    
     readNFC();
      if(readKeyIdle()){
         setState(STATE_NUMINCOME);
@@ -517,14 +548,17 @@ void doStateNumIncome(){
   //readKeypad
   //when keyapd , check password
 }
+
+static unsigned long open_time = 0;
 void doStateOpenIdle(){
   //check doorstate for closed
   Serial.println("door opened");
   openDoor();
+  open_time = millis();
   while(checkState(STATE_OPENIDLE)){//sensor ==true
-     if(checkDoor() || readKeypad(  )){
+     if((millis()-open_time>10000)||checkDoor() || readKeypad()){
       closeDoor();
-       setState(STATE_IDLE);
+     setState(STATE_IDLE);
      }
      
   }
@@ -563,8 +597,8 @@ void setup() {
   pinMode(SDO_PIN, INPUT); 
   
   pinMode(PHOTO1, INPUT); // 포토인터럽터 입력으로 설정;  
-  //attachInterrupt(1, photoInterr,FALLING);//pin 3 interrupt
-
+  //
+  
   
   uint32_t versiondata = nfc.getFirmwareVersion();
   if (!versiondata){
@@ -577,13 +611,14 @@ void setup() {
   initNfcData();
   WifiSerial.begin(9600);
   resetCPwd();
-  //closeDoor();
+  closeDoor();
   Serial.println("drlk start");
+  pinMode(2, INPUT_PULLUP);
   delay(1000);
 }
 
 void loop() {
- 
+  
 
   Serial.print("Machine state : ");//--------------------------------------Log
   Serial.println(machineState);
